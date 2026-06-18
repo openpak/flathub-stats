@@ -103,6 +103,17 @@ class CommitCache:
         if commit and not self.has_commit(commit):
             self.update_for_commit(commit, branch)
 
+    def resolve_all_summary_refs(self):
+        """Resolve every interesting published ref to its commit + root dirtree.
+
+        Flathub's Fastly logs carry the flatpak ref, so the dirtree->commit map
+        can be built lazily. Caddy/Cloudflare logs don't, so pre-resolve the
+        whole summary up front to map raw dirtree object downloads to installs.
+        """
+        for branch in list(self.summary_map.keys()):
+            if should_keep_ref(branch, self.valid_arches):
+                self.update_from_summary(branch)
+
     def update_for_commit(self, commit: str, known_branch: str | None = None):
         ref = known_branch
         root_dirtree = None

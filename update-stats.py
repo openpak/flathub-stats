@@ -214,6 +214,11 @@ args = parser.parse_args()
 
 refs_cache = flathub.load_cache(args.ref_cache_path)
 
+# When logs lack the flatpak ref field (Caddy/Cloudflare instead of Fastly),
+# pre-resolve every published ref so dirtree object downloads can be counted.
+if os.environ.get("STATS_PRERESOLVE"):
+    refs_cache.resolve_all_summary_refs()
+
 downloads = []
 for logname in args.logfiles:
     d = flathub.parse_log(logname, refs_cache, args.ignore_deltas)
