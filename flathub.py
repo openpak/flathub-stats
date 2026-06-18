@@ -9,9 +9,15 @@ import sys
 import time
 import urllib.error
 import urllib.parse
+import os
 import urllib.request
 
 from gi.repository import GLib  # type: ignore[import-untyped]
+
+# Base for fetching the OSTree repo metadata (summary + commit objects). Defaults
+# to the public CDN, but a local generator can set REPO_BASE=file:///srv to read
+# the repo straight off disk and avoid CDN/bot blocks.
+REPO_BASE = os.environ.get("REPO_BASE", "https://dl.openpak.org").rstrip("/")
 
 
 def load_cache(path):
@@ -38,7 +44,7 @@ class CommitCache:
         self.modified = False
 
         try:
-            url = "https://dl.openpak.org/repo/summary.idx"
+            url = f"{REPO_BASE}/repo/summary.idx"
             response = urllib.request.urlopen(url)
             summary_idx = response.read()
 
@@ -73,7 +79,7 @@ class CommitCache:
                 self.dirtree_map[dirtree] = commit
 
         self.summary_map = {}
-        url = "https://dl.openpak.org/repo/summary"
+        url = f"{REPO_BASE}/repo/summary"
         try:
             response = urllib.request.urlopen(url)
             summaryv = response.read()
@@ -100,7 +106,7 @@ class CommitCache:
     def update_for_commit(self, commit: str, known_branch: str | None = None):
         ref = known_branch
         root_dirtree = None
-        url = f"https://dl.openpak.org/repo/objects/{commit[0:2]}/{commit[2:]}.commit"
+        url = f"{REPO_BASE}/repo/objects/{commit[0:2]}/{commit[2:]}.commit"
         print(f"Resolving {commit}", end=" ")
         try:
             response = urllib.request.urlopen(url)
