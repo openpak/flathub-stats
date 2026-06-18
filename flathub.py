@@ -38,7 +38,7 @@ class CommitCache:
         self.modified = False
 
         try:
-            url = "https://dl.flathub.org/repo/summary.idx"
+            url = "https://dl.openpak.org/repo/summary.idx"
             response = urllib.request.urlopen(url)
             summary_idx = response.read()
 
@@ -73,7 +73,7 @@ class CommitCache:
                 self.dirtree_map[dirtree] = commit
 
         self.summary_map = {}
-        url = "https://dl.flathub.org/repo/summary"
+        url = "https://dl.openpak.org/repo/summary"
         try:
             response = urllib.request.urlopen(url)
             summaryv = response.read()
@@ -100,7 +100,7 @@ class CommitCache:
     def update_for_commit(self, commit: str, known_branch: str | None = None):
         ref = known_branch
         root_dirtree = None
-        url = f"https://dl.flathub.org/repo/objects/{commit[0:2]}/{commit[2:]}.commit"
+        url = f"https://dl.openpak.org/repo/objects/{commit[0:2]}/{commit[2:]}.commit"
         print(f"Resolving {commit}", end=" ")
         try:
             response = urllib.request.urlopen(url)
